@@ -1,5 +1,6 @@
 #include <algorithm>    // std::sort
 #include <iostream>     // std::cout, fgetc
+#include <fstream>      // std::ifstream
 #include <map>          // std::map, find, emplace
 #include <string>       // std::string, lenght, substr, push_back
 #include <vector>       // std::vector, push_back
@@ -62,20 +63,26 @@ string readFile(string qsFileName, map<string, long> *m){
     long count=0;
     long longWords = 0;
     long unicWords = 0;
-    FILE *file;
     string message;
 
     map<string, long>::iterator it;
 
-    file = fopen(qsFileName.data(), "r");
-
-    if (file == nullptr) {
+    ifstream input (qsFileName, std::ifstream::in);
+    if (!input.is_open() )    {
         message = "Can't open file ";
         cout << message << qsFileName << endl;
         return message;
     }
-    while ( ! feof(file) ) {
-        ch =static_cast<char>( fgetc(file) );
+
+    // get length of file:
+    input.seekg (0, ios::end);
+    long long iFileSize = input.tellg();
+    long long iTimeOut = iFileSize/10000000;
+    cout <<  "File size "<< iFileSize << " in bytes\nTo parse it, this can take " << iTimeOut<<" sec \n";
+    input.seekg (0, ios::beg);
+
+    while (input.good()) {
+        ch = static_cast<char> (input.get() );
         //cout << ch;
         if (isLetter(ch) && (!startWord)){
             //we start to collect new word
@@ -108,7 +115,8 @@ string readFile(string qsFileName, map<string, long> *m){
             startWord = false;
         }
     }
-    fclose(file);
+    input.close();
+    //fclose(file);
     cout << "Ok, in file " << qsFileName << ", all word count is " << count <<
             ", long word is " << longWords << " count, unique long words is " <<unicWords << endl;
 
@@ -212,7 +220,7 @@ int main()
 {
     string qsFileName = "s2.txt";
     analyseLog(qsFileName);
-/*
+
     qsFileName = "s.txt";
     analyseLog(qsFileName);
 
@@ -230,7 +238,7 @@ int main()
 
     qsFileName = "jsonfile.log";
     analyseLog(qsFileName);
-
+/*
 
 */
     return 0;
