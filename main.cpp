@@ -77,12 +77,6 @@ QString readFile(QString qsFileName, QMap<QString, long> *m){
     inputConsole.setCodec("UTF-8");
     while (!inputConsole.atEnd()) {
         inputConsole >> ch;
-
-        /*
-    while (!file.atEnd()){
-        file.getChar(&old_ch);
-        ch = old_ch;
-    */
         if (ch.isLetter() && (!startWord)){
             //we start to collect new word
             startWord = true;
@@ -122,6 +116,14 @@ QString readFile(QString qsFileName, QMap<QString, long> *m){
     return message;
 }
 
+bool compItems(pair<long, string> a, pair<long, string> b){
+    if (a.first > b.first) return true;
+    if (a.first == b.first) {
+        if (a.second < b.second) return true;
+    }
+    return false;
+}
+
 void analyseLog(QString fileName){
     QDateTime qdtStart = QDateTime::currentDateTime();
     qint64 startMilSec = QDateTime::currentMSecsSinceEpoch();
@@ -142,8 +144,6 @@ void analyseLog(QString fileName){
     message = readFile(fileName, &myMap);
     cout << qPrintable(message );
 
-
-
     QDateTime qdtStop = QDateTime::currentDateTime();
     qint64 stpoMilSec = QDateTime::currentMSecsSinceEpoch();
     qint64 delta = stpoMilSec - startMilSec;
@@ -154,18 +154,14 @@ void analyseLog(QString fileName){
     message = message.arg(qdtStart.toString(qsTimeFormat)).arg(qdtStop.toString(qsTimeFormat)).arg(delta);
     cout << qPrintable(message);
 
-    QMap<QString, long>::const_iterator i=myMap.begin();
-    /*
-    while (i!=myMap.end()) {
-        cout << "my Map: " << qPrintable(i.key()) << " : "<< i.value() << endl;
-        ++i;
-    }*/
     message = "Start to generage extended map, with new short words.\n";
     cout << qPrintable(message);
 
+
+
     pair<long, string> myItem;
     QMap<QString, long> extendedMap;
-    i=myMap.begin();
+    QMap<QString, long>::const_iterator i=myMap.begin();
     while (i!=myMap.end()) {
         //cout << "my Map: " << qPrintable(i.key()) << " : "<< i.value() << endl;
         myItem.first = i.value();
@@ -187,29 +183,28 @@ void analyseLog(QString fileName){
         ++i;
     }
 
-    sort(myVector.begin(), myVector.end());
+    sort(myVector.begin(), myVector.end(),compItems);
     cout << "my sorted vector have " << myVector.size() << " elements\n";
     cout << "Total words count is " << totalCount << endl;
-    vector<pair<long, string>>::const_iterator j = myVector.end();
+    vector<pair<long, string>>::const_iterator itter = myVector.begin();
     int N=0;
     double percent;
     long intVal;
-    while (j!=myVector.begin()) {
-        --j;
+    while (itter!=myVector.end()) {
         N++;
-        intVal = j->first;
-        percent = static_cast<double>(intVal*100) /  static_cast<double>(totalCount) ;
-
-        cout << N <<" my Vec: " << j->second << " : " << intVal << " : " << percent << "%\n";
-        if (N>=10) break;
+        intVal = itter->first;
+        percent = static_cast<double>(intVal*100) /  static_cast<double>(totalCount);
+        cout << N <<" my Vec: " << itter->second << " : " << intVal << " : " << percent << "%\n";
+        itter++;
+        if (N>=20) break;
     }
 }
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    QString qsFileName = "input.txt";
+    QString qsFileName = "s2.txt";
     analyseLog(qsFileName);
-/*
+
     qsFileName = "s.txt";
     analyseLog(qsFileName);
 
@@ -218,7 +213,7 @@ int main(int argc, char *argv[])
 
     qsFileName = "QChar.md";
     analyseLog(qsFileName);
-
+/*
     qsFileName = "timing-4.log";
     analyseLog(qsFileName);
 
