@@ -12,10 +12,8 @@
 
 using namespace std;
 
-struct item{
-    int count;
-    QString word;
-};
+#define N 20
+#define MIN_WORD_LEN 4
 
 bool checkFile(QString qsFileName){
     QString message;
@@ -37,15 +35,16 @@ bool checkFile(QString qsFileName){
     file.close();
     return true;
 }
+
 void generateWords(pair<long, string> item, QMap<QString, long> *m){
 
     QString const source = QString::fromStdString(item.second);
     long count = item.first;
-    int genWordLen = 4;
+    int genWordLen = MIN_WORD_LEN;
     int const lenght = source.length();
     QString newWord;
-    for (int i=0; i<=lenght-4; i++){
-        genWordLen = 4+i;
+    for (int i=0; i<=lenght-MIN_WORD_LEN; i++){
+        genWordLen = MIN_WORD_LEN+i;
         //qDebug() << "genWordLen is : " << genWordLen << ", i is :" << i ;
         for (int start = 0; start<=lenght-genWordLen; start++) {
             count = item.first;
@@ -89,7 +88,7 @@ QString readFile(QString qsFileName, QMap<QString, long> *m){
         if (!ch.isLetter() && (startWord)){
             // qDebug() << word;
             count++;
-            if (word.length()>3) {
+            if (word.length()>=MIN_WORD_LEN) {
                 QString lowerWord = word.toLower();
                 long count = 1;
                 if (!m->contains(lowerWord)){
@@ -155,20 +154,16 @@ long fillVector(vector<pair<long, string>> *toFill, QMap<QString, long> fromMap)
 void printVector(vector<pair<long, string>> toPrint, long totalCount, int topCount){
     // sort vector first
     sort(toPrint.begin(), toPrint.end(),compItems);
-    cout << "my sorted vector have " << toPrint.size() << " elements\n";
     cout << "Total words count is " << totalCount << endl;
-
-    vector<pair<long, string>>::const_iterator i = toPrint.begin();
-    int N=0;
     double percent;
     long intVal;
-    while (i!=toPrint.end()) {
-        N++;
-        intVal = i->first;
+    int cur=0;
+    for (auto myItem : toPrint){
+        intVal = myItem.first;
         percent = static_cast<double>(intVal*100) / static_cast<double>(totalCount);
-        cout << N <<" my Vec: " << i->second << " : " << intVal << " : " << percent << "%\n";
-        i++;
-        if (N>=topCount) break;
+        cout << myItem.second << "\t : " << percent << "% \t: ("<<intVal<< ") of " << totalCount << endl;
+        cur++;
+        if (cur>=topCount) break;
     }
 }
 
@@ -202,11 +197,13 @@ void analyseLog(QString fileName){
     message = message.arg(qdtStart.toString(qsTimeFormat)).arg(qdtStop.toString(qsTimeFormat)).arg(delta);
     cout << qPrintable(message);
 
-    message = "Start to generage extended map, with new short words.\n";
+    message = "Start to generate extended map, with new short words.\n";
     cout << qPrintable(message);
 
     QMap<QString, long> extendedMap = generateExtraMap(myMap);
-    cout << "extendedMap now have " << extendedMap.count() << " elements\n";
+    message = "Extended map now have %1 elements\n";
+    message =  message.arg(extendedMap.count());
+    cout << qPrintable(message);
 
     message = "Fill vector from extended map.\n";
     cout << qPrintable(message);
@@ -215,9 +212,12 @@ void analyseLog(QString fileName){
     vector<pair<long, string>> myVector;
     totalCount = fillVector(&myVector,extendedMap);
 
-    printVector(myVector, totalCount, 20);
+    message = "Print top N words and it percents. N is ";
+    cout << qPrintable(message) << N << endl;
+    printVector(myVector, totalCount, N);
 
 }
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
@@ -232,18 +232,18 @@ int main(int argc, char *argv[])
 
     qsFileName = "QChar.md";
     analyseLog(qsFileName);
-/*
-    qsFileName = "timing-4.log";
-    analyseLog(qsFileName);
 
-    qsFileName = "ThreeMenShort.txt";
-    //analyseLog(qsFileName);
+    qsFileName = "timing-4.log";
+  //  analyseLog(qsFileName);
+
+    qsFileName = "QtWebEngine5.12.html";
+    analyseLog(qsFileName);
 
     qsFileName ="THREE-MEN-IN-A-BOAT.html";
-    //analyseLog(qsFileName);
+  //  analyseLog(qsFileName);
 
     qsFileName = "jsonfile.log";
-    analyseLog(qsFileName);
-*/
+   // analyseLog(qsFileName);
+
     return a.exec();
 }
