@@ -1,13 +1,9 @@
 #include <QCoreApplication>
 
-#include <QTimer>
-#include <QTextStream>
-#include <QDebug>
 #include <QString>
 #include <QFile>
-#include <QDateTime>
 #include <QMap>
-#include <QLocale>
+
 
 #include <iostream>
 #include <map>
@@ -18,27 +14,31 @@ using namespace std;
 #define N 20
 #define MIN_WORD_LEN 4
 
-void generateWords(pair<long, string> item, QMap<QString, long> *m){
-
-    QString const source = QString::fromStdString(item.second);
+void generateWords(pair<long, string> item, map<string, long> *m){
+    string const source = item.second;
     long count = item.first;
-    int genWordLen = MIN_WORD_LEN;
-    int const lenght = source.length();
-    QString newWord;
-    for (int i=0; i<=lenght-MIN_WORD_LEN; i++){
+    size_t genWordLen = MIN_WORD_LEN;
+    size_t const lenght = source.length();
+    string newWord;
+    map<string, long>::iterator it;
+
+    for (size_t i=0; i<=lenght-MIN_WORD_LEN; i++){
         genWordLen = MIN_WORD_LEN+i;
-        //qDebug() << "genWordLen is : " << genWordLen << ", i is :" << i ;
-        for (int start = 0; start<=lenght-genWordLen; start++) {
+        //cout << "genWordLen is : " << genWordLen << ", i is :" << i << endl;
+        for (size_t start = 0; start<=lenght-genWordLen; start++) {
             count = item.first;
-            newWord=source.mid(start, genWordLen);
-          //qDebug() << "Word source is : " << source << ": new word" << newWord ;
-            if (m->contains(newWord)){
-                count += m->value(newWord);
+            newWord = source.substr(start, genWordLen);
+            //cout << "Word source is : " << source << " : new word " << newWord << endl;
+            it = m->find(newWord);
+            if (it == m->end()){
+                m->emplace(newWord,count);
+                //cout << "insert  new  word '" << newWord << "' with count " << count << endl;
+            }else {
+                it->second+=count;
+                //cout << "update exist word '" << newWord << "' with count " << it->second << endl;
             }
-            m->insert(newWord,count);
-            //qDebug() << "insert newWord " << newWord << " with value " << count;
         }
-    }
+    }//end of main loop
 }
 
 bool isLetter(char ch){
@@ -58,6 +58,7 @@ string toLower(string s){
     }
     return lower;
 }
+
 string readFile(string qsFileName, map<string, long> *m){
     string word;
     char ch;
@@ -128,14 +129,14 @@ bool compItems(pair<long, string> a, pair<long, string> b){
     return false;
 }
 
-QMap<QString, long> generateExtraMap(QMap<QString, long> originalMap){
+map<string, long> generateExtraMap(map<string, long> originalMap){
     pair<long, string> myItem;
-    QMap<QString, long> newMap;
-    QMap<QString, long>::const_iterator i=originalMap.begin();
+    map<string, long> newMap;
+    map<string, long>::const_iterator i=originalMap.begin();
     while (i!=originalMap.end()) {
-        //cout << "my Map: " << qPrintable(i.key()) << " : "<< i.value() << endl;
-        myItem.first = i.value();
-        myItem.second = qPrintable(i.key());
+        //cout << "my Map: " << i->first << " : "<< i->second << endl;
+        myItem.first = i->second;
+        myItem.second = i->first;
         generateWords(myItem, &newMap);
         ++i;
     }
@@ -181,21 +182,21 @@ void analyseLog(string fileName){
     map<string, long> myMap;
     cout << "start to read file " << fileName << endl;
     message = readFile(fileName, &myMap);
-    cout << message;
+    cout << message << endl;
 
     message = "Start to generate extended map, with new short words.\n";
     cout << message;
 
-    map<string, long> extendedMap; // = generateExtraMap(myMap);
-    message = "Extended map now have";
-    cout << message << extendedMap.size() << "elements\n";
+    map<string, long> extendedMap = generateExtraMap(myMap);
+    message = "Extended map now have ";
+    cout << message << extendedMap.size() << " elements\n";
 
     message = "Fill vector from extended map.\n";
     cout << message;
 
     long totalCount=0;
     vector<pair<long, string>> myVector;
-    totalCount = fillVector(&myVector,myMap);
+    totalCount = fillVector(&myVector, extendedMap);
 
     message = "Print top N words and it percents. N is ";
     cout << message << N << endl;
@@ -207,7 +208,6 @@ int main()
 {
     string qsFileName = "s2.txt";
     analyseLog(qsFileName);
-
 
     qsFileName = "s.txt";
     analyseLog(qsFileName);
