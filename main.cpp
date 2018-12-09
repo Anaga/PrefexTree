@@ -164,7 +164,6 @@ void analyseLog(QString fileName){
     cout << qPrintable(message);
 
     pair<long, string> myItem;
-    //int expectedmapSize = 10*myMap.size();
     QMap<QString, long> extendedMap;
     i=myMap.begin();
     while (i!=myMap.end()) {
@@ -175,11 +174,13 @@ void analyseLog(QString fileName){
         ++i;
     }
 
+    long totalCount=0;
     vector<pair<long, string>> myVector;
     cout << "extendedMap now have " << extendedMap.count() << " elements\n";
     i=extendedMap.begin();
     while (i!=extendedMap.end()) {
         //cout << "extended Map: " << qPrintable(i.key()) << " : "<< i.value() << endl;
+        totalCount+= i.value();
         myItem.first = i.value();
         myItem.second = qPrintable(i.key());
         myVector.insert(myVector.end(), myItem);
@@ -188,13 +189,19 @@ void analyseLog(QString fileName){
 
     sort(myVector.begin(), myVector.end());
     cout << "my sorted vector have " << myVector.size() << " elements\n";
+    cout << "Total words count is " << totalCount << endl;
     vector<pair<long, string>>::const_iterator j = myVector.end();
     int N=0;
+    double percent;
+    long intVal;
     while (j!=myVector.begin()) {
         --j;
         N++;
-        cout << N <<" my Vec: " << j->second << " : " << j->first << endl;
-        if (N>100) break;
+        intVal = j->first;
+        percent = static_cast<double>(intVal*100) /  static_cast<double>(totalCount) ;
+
+        cout << N <<" my Vec: " << j->second << " : " << intVal << " : " << percent << "%\n";
+        if (N>=10) break;
     }
 }
 int main(int argc, char *argv[])
