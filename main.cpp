@@ -7,7 +7,7 @@
 #include <iostream>
 #include <QFile>
 #include <QDateTime>
-#include <QSet>
+#include <QMap>
 #include <QLocale>
 
 using namespace std;
@@ -124,6 +124,54 @@ bool compItems(pair<long, string> a, pair<long, string> b){
     return false;
 }
 
+QMap<QString, long> generateExtraMap(QMap<QString, long> originalMap){
+    pair<long, string> myItem;
+    QMap<QString, long> newMap;
+    QMap<QString, long>::const_iterator i=originalMap.begin();
+    while (i!=originalMap.end()) {
+        //cout << "my Map: " << qPrintable(i.key()) << " : "<< i.value() << endl;
+        myItem.first = i.value();
+        myItem.second = qPrintable(i.key());
+        generateWords(myItem, &newMap);
+        ++i;
+    }
+    return newMap;
+}
+
+long fillVector(vector<pair<long, string>> *toFill, QMap<QString, long> fromMap){
+    long total=0;
+    pair<long, string> myItem;
+    QMap<QString, long>::const_iterator i=fromMap.begin();
+    while (i!=fromMap.end()) {
+        total+= i.value();
+        myItem.first = i.value();
+        myItem.second = qPrintable(i.key());
+        toFill->push_back(myItem);
+        ++i;
+    }
+    return total;
+}
+
+void printVector(vector<pair<long, string>> toPrint, long totalCount, int topCount){
+    // sort vector first
+    sort(toPrint.begin(), toPrint.end(),compItems);
+    cout << "my sorted vector have " << toPrint.size() << " elements\n";
+    cout << "Total words count is " << totalCount << endl;
+
+    vector<pair<long, string>>::const_iterator i = toPrint.begin();
+    int N=0;
+    double percent;
+    long intVal;
+    while (i!=toPrint.end()) {
+        N++;
+        intVal = i->first;
+        percent = static_cast<double>(intVal*100) / static_cast<double>(totalCount);
+        cout << N <<" my Vec: " << i->second << " : " << intVal << " : " << percent << "%\n";
+        i++;
+        if (N>=topCount) break;
+    }
+}
+
 void analyseLog(QString fileName){
     QDateTime qdtStart = QDateTime::currentDateTime();
     qint64 startMilSec = QDateTime::currentMSecsSinceEpoch();
@@ -157,47 +205,18 @@ void analyseLog(QString fileName){
     message = "Start to generage extended map, with new short words.\n";
     cout << qPrintable(message);
 
+    QMap<QString, long> extendedMap = generateExtraMap(myMap);
+    cout << "extendedMap now have " << extendedMap.count() << " elements\n";
 
-
-    pair<long, string> myItem;
-    QMap<QString, long> extendedMap;
-    QMap<QString, long>::const_iterator i=myMap.begin();
-    while (i!=myMap.end()) {
-        //cout << "my Map: " << qPrintable(i.key()) << " : "<< i.value() << endl;
-        myItem.first = i.value();
-        myItem.second = qPrintable(i.key());
-        generateWords(myItem, &extendedMap);
-        ++i;
-    }
+    message = "Fill vector from extended map.\n";
+    cout << qPrintable(message);
 
     long totalCount=0;
     vector<pair<long, string>> myVector;
-    cout << "extendedMap now have " << extendedMap.count() << " elements\n";
-    i=extendedMap.begin();
-    while (i!=extendedMap.end()) {
-        //cout << "extended Map: " << qPrintable(i.key()) << " : "<< i.value() << endl;
-        totalCount+= i.value();
-        myItem.first = i.value();
-        myItem.second = qPrintable(i.key());
-        myVector.insert(myVector.end(), myItem);
-        ++i;
-    }
+    totalCount = fillVector(&myVector,extendedMap);
 
-    sort(myVector.begin(), myVector.end(),compItems);
-    cout << "my sorted vector have " << myVector.size() << " elements\n";
-    cout << "Total words count is " << totalCount << endl;
-    vector<pair<long, string>>::const_iterator itter = myVector.begin();
-    int N=0;
-    double percent;
-    long intVal;
-    while (itter!=myVector.end()) {
-        N++;
-        intVal = itter->first;
-        percent = static_cast<double>(intVal*100) /  static_cast<double>(totalCount);
-        cout << N <<" my Vec: " << itter->second << " : " << intVal << " : " << percent << "%\n";
-        itter++;
-        if (N>=20) break;
-    }
+    printVector(myVector, totalCount, 20);
+
 }
 int main(int argc, char *argv[])
 {
