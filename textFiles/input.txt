@@ -1,0 +1,39 @@
+bool checkFile(QString qsFileName){
+    QString message;
+
+    QFile file(qsFileName);
+    if (!file.exists()){
+        message = "Can't find file %1 to read\n";
+        message = message.arg(qsFileName);
+        qDebug() << message;
+        return false;
+    }
+
+    if(!file.open(QFile::ReadOnly | QFile::Text))  {
+        message = "Can't open the file %1 for reading\n";
+        message = message.arg(qsFileName);
+        qDebug() << message;
+        return false;
+    }
+    file.close();
+    return true;
+}
+"hall feels heels"
+
+Three invalids.
+—Sufferings of George and Harris.
+—A victim to one hundred and seven fatal maladies.
+—Useful prescriptions.
+—Cure for liver complaint in children.
+—We agree that we are overworked, and need rest.
+—A week on the rolling deep?
+—George suggests the River.
+—Montmorency lodges an objection.
+—Original motion carried by majority of three to one.
+
+I came to typhoid fever—read the symptoms—discovered that I had typhoid fever, 
+must have had it for months without knowing it—wondered what else I had got; 
+turned up St. Vitus’s Dance
+—found, as I expected, that I had that too,
+—began to get interested in my case, and determined to sift it to the bottom, and so started alphabetically
+—read up ague, and learnt that I was sickening for it, and that the acute stage would commence in about another fortnight.
