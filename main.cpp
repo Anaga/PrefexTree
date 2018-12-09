@@ -1,18 +1,13 @@
-#include <QCoreApplication>
-
-#include <QString>
-#include <QFile>
-#include <QMap>
-
-
-#include <iostream>
-#include <map>
-#include <string>
+#include <algorithm>    // std::sort
+#include <iostream>     // std::cout, fgetc
+#include <map>          // std::map, find, emplace
+#include <string>       // std::string, lenght, substr, push_back
+#include <vector>       // std::vector, push_back
 
 using namespace std;
 
 #define N 20
-#define MIN_WORD_LEN 4
+#define MIN_WORD_LEN 3
 
 void generateWords(pair<long, string> item, map<string, long> *m){
     string const source = item.second;
@@ -180,9 +175,18 @@ void printVector(vector<pair<long, string>> toPrint, long totalCount, int topCou
 void analyseLog(string fileName){
     string message;
     map<string, long> myMap;
-    cout << "start to read file " << fileName << endl;
+    cout << "Start to read file :" << fileName << endl;
     message = readFile(fileName, &myMap);
     cout << message << endl;
+    if (message != "Ok") {
+        cout << "Somthing wrong with file '" << fileName << "' skip it!\n";
+        return;
+    }
+
+    if (myMap.size()==0){
+        cout << "We canot find words longer than "<< MIN_WORD_LEN <<" in '" << fileName << "' skip it!\n";
+        return;
+    }
 
     message = "Start to generate extended map, with new short words.\n";
     cout << message;
@@ -208,13 +212,26 @@ int main()
 {
     string qsFileName = "s2.txt";
     analyseLog(qsFileName);
-
+/*
     qsFileName = "s.txt";
     analyseLog(qsFileName);
 
     qsFileName = "QChar.md";
     analyseLog(qsFileName);
-/*
+
+    qsFileName = "QtWebEngine5.12.html";
+    analyseLog(qsFileName);
+
+    qsFileName ="THREE-MEN-IN-A-BOAT.html";
+    analyseLog(qsFileName);
+
+    qsFileName ="textfile.log";
+    analyseLog(qsFileName);
+
+    qsFileName = "jsonfile.log";
+    analyseLog(qsFileName);
+
+
 */
     return 0;
 }
