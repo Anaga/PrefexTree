@@ -8,8 +8,46 @@
 using namespace std;
 
 #define N 10
-#define MIN_WORD_LEN 3
+#define MIN_WORD_LEN 4
 
+// Helper funtion, return true for char [a..z][A..Z]
+bool isLetter(char ch){
+    if ((ch>='a') && (ch<='z')) return true;
+    if ((ch>='A') && (ch<='Z')) return true;
+    return false;
+}
+
+// Helper funtion, return copy if string in lower case.
+// Modify only [A..Z] characters.
+string toLower(string s){
+    char ch;
+    string lower;
+    char delta = 'a'-'A';
+    for (size_t i=0; i<s.length(); i++){
+        ch = s.at(i);
+        if ((ch>='A') && (ch<='Z')) ch+=delta; //up from capital letter to lower letter (char delta - 32)
+        lower.push_back(ch);
+    }
+    return lower;
+}
+
+// Helper funtion,
+// to sort long in descending order,
+// and sort string in ascending order
+bool compItems(pair<long, string> a, pair<long, string> b){
+    if (a.first > b.first) return true;
+    if (a.first == b.first) {
+        if (a.second < b.second) return true;
+    }
+    return false;
+}
+
+
+// Function to generate new words from input item.
+// item consist of count and source word.
+//
+// If new word exist in map, function update count,
+// otherwise insert new word to map with count from input pair.
 void generateWords(pair<long, string> item, map<string, long> *m){
     string const source = item.second;
     long count = item.first;
@@ -37,36 +75,41 @@ void generateWords(pair<long, string> item, map<string, long> *m){
     }//end of main loop
 }
 
-bool isLetter(char ch){
-    if ((ch>='a') && (ch<='z')) return true;
-    if ((ch>='A') && (ch<='Z')) return true;
-    return false;
-}
-
-string toLower(string s){
-    char ch;
-    string lower;
-    char delta = 'a'-'A';
-    for (size_t i=0; i<s.length(); i++){
-        ch = s.at(i);
-        if ((ch>='A') && (ch<='Z')) ch+=delta; //up from capital letter to lower letter (char delta - 32)
-        lower.push_back(ch);
+// Function with static vars to collect char in one word.
+// Flag isReady will be set to true when word is copmleate.
+// But function return collected word at any call.
+// (Eaven if is not compleate)
+string grabOneWord(const char ch, bool *isReady){
+    static string word = "";
+    static bool startWord = false;
+    *isReady = false;
+    if (isLetter(ch) && (!startWord)){
+        //we start to collect new word
+        startWord = true;
+        word = "";
     }
-    return lower;
+    if (isLetter(ch) && (startWord)){
+        //we continue to collect word
+        word.push_back(ch);
+    }
+    if (!isLetter(ch) && (startWord)){
+        cout << word << endl;
+        //stop collect word
+        startWord = false;
+        *isReady = true;
+    }
+    return word;
 }
 
+// Main function working with file.
+// First - get file size and try to estimate reading time.
+// Second - read file char by char, and call grabOneWord.
+// When grabOneWord set wordIsCompleat to true, add this word to map,
+// or update count of this word.
+//
+// Last - show some statistics.
 string readFile(string qsFileName, map<string, long> *m){
-    string word;
-    char ch;
-
-    bool startWord = false;
-    long count=0;
-    long longWords = 0;
-    long unicWords = 0;
     string message;
-
-    map<string, long>::iterator it;
-
     ifstream input (qsFileName, std::ifstream::in);
     if (!input.is_open() )    {
         message = "Can't open file ";
@@ -81,57 +124,47 @@ string readFile(string qsFileName, map<string, long> *m){
     cout <<  "File size "<< iFileSize << " in bytes\nTo parse it, this can take " << iTimeOut<<" sec \n";
     input.seekg (0, ios::beg);
 
+
+    long totalWords = 0;
+    long longWords = 0;
+    long unicWords = 0;
+    char ch;
+    string oneWord;
+    bool wordIsCompleat = false;
+    map<string, long>::iterator it;
     while (input.good()) {
         ch = static_cast<char> (input.get() );
-        //cout << ch;
-        if (isLetter(ch) && (!startWord)){
-            //we start to collect new word
-            startWord = true;
-            word = "";
-        }
-        if (isLetter(ch) && (startWord)){
-            //we continue to collect word
-            word.push_back(ch);
-        }
-        if (!isLetter(ch) && (startWord)){
-            //cout << word << endl;
-            count++;
-            if (word.length()>=MIN_WORD_LEN) {
-                string lowerWord = toLower(word);
-                long count = 1;
-                it = m->find(lowerWord);
+        oneWord = grabOneWord(ch,&wordIsCompleat);
+        if (!wordIsCompleat) continue;
 
-                if (it == m->end()){
-                    unicWords++;
-                    m->emplace(lowerWord,count);
-                }else {
-                    it->second++;
-                    count = it->second;
-                }
-                //cout << "insert '" << lowerWord << "' with value " << count << endl;
-                longWords++;
+        totalWords++;
+        if (oneWord.length()>=MIN_WORD_LEN) {
+            string lowerWord = toLower(oneWord);
+            longWords++;
+
+            it = m->find(lowerWord);
+            if (it == m->end()){
+                unicWords++;
+                m->emplace(lowerWord,1);
+            }else {
+                it->second++;
             }
-            //stop collect word
-            startWord = false;
         }
     }
     input.close();
-    //fclose(file);
-    cout << "Ok, in file " << qsFileName << ", all word count is " << count <<
+
+    cout << "Ok, in file " << qsFileName << ", all word count is " << totalWords <<
             ", long word is " << longWords << " count, unique long words is " <<unicWords << endl;
 
     message = "Ok";
     return message;
 }
 
-bool compItems(pair<long, string> a, pair<long, string> b){
-    if (a.first > b.first) return true;
-    if (a.first == b.first) {
-        if (a.second < b.second) return true;
-    }
-    return false;
-}
-
+// Function to make new map with short words.
+// It use pair<long, string> myItem to pass input word and count to
+// function generateWords.
+//
+// For general English text new map is about 10 times bigger, them original map.
 map<string, long> generateExtraMap(map<string, long> originalMap){
     pair<long, string> myItem;
     map<string, long> newMap;
@@ -146,6 +179,8 @@ map<string, long> generateExtraMap(map<string, long> originalMap){
     return newMap;
 }
 
+// Functin to copy all data from map to vector, and
+// count total words count in extended map.
 long fillVector(vector<pair<long, string>> *toFill, map<string, long> fromMap){
     long total=0;
     pair<long, string> myItem;
@@ -160,6 +195,8 @@ long fillVector(vector<pair<long, string>> *toFill, map<string, long> fromMap){
     return total;
 }
 
+// Functin to sort vector items according to helper function compItems
+// Then print out N items from the top.
 void printVector(vector<pair<long, string>> toPrint, long totalCount, int topCount){
     // sort vector first
     sort(toPrint.begin(), toPrint.end(),compItems);
@@ -180,6 +217,14 @@ void printVector(vector<pair<long, string>> toPrint, long totalCount, int topCou
     }
 }
 
+// Main function to handle some exeptions and to do all job.
+// First - readFile and fill myMap with unique words from file.
+// (Most time consuming operation)
+//
+// Second - generate extended map, calling function generateWords foreach word in myMap.
+//
+// Next - copy all items from extended map to vector, call function fillVector.
+// Last - sort and print N top items from vector.
 void analyseLog(string fileName){
     string message;
     map<string, long> myMap;
@@ -218,14 +263,14 @@ void analyseLog(string fileName){
 
 int main()
 {
-    string logFolder = "textFiles";
+    string logFolder = "";
     string qsFileName = "s2.txt";
     
-/*    analyseLog(logFolder+ "/" +qsFileName);
+    analyseLog(qsFileName);
 
     qsFileName = "s.txt";
-    analyseLog(logFolder+ "/" +qsFileName); 
-
+    analyseLog(logFolder +qsFileName);
+    /*
     qsFileName = "QChar.md";
     analyseLog(logFolder+ "/" +qsFileName);
 
@@ -241,12 +286,12 @@ int main()
     qsFileName = "jsonfile.log";
     analyseLog(logFolder+ "/" +qsFileName);
 
-*/
+
     qsFileName = "aex-client.log";
     analyseLog(logFolder+ "/" +qsFileName);
     
     qsFileName = "tales_stable.pl.xml";
     analyseLog(logFolder+ "/" +qsFileName);
-   
+*/
     return 0;
 }
