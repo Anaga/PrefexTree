@@ -7,7 +7,7 @@
 
 using namespace std;
 
-#define N 20
+#define N 10
 #define MIN_WORD_LEN 3
 
 void generateWords(pair<long, string> item, map<string, long> *m){
@@ -218,28 +218,35 @@ void analyseLog(string fileName){
 
 int main()
 {
+    string logFolder = "textFiles";
     string qsFileName = "s2.txt";
-    analyseLog(qsFileName);
+    
+/*    analyseLog(logFolder+ "/" +qsFileName);
 
     qsFileName = "s.txt";
-    analyseLog(qsFileName);
+    analyseLog(logFolder+ "/" +qsFileName); 
 
     qsFileName = "QChar.md";
-    analyseLog(qsFileName);
+    analyseLog(logFolder+ "/" +qsFileName);
 
     qsFileName = "QtWebEngine5.12.html";
-    analyseLog(qsFileName);
+    analyseLog(logFolder+ "/" +qsFileName);
 
     qsFileName ="THREE-MEN-IN-A-BOAT.html";
-    analyseLog(qsFileName);
+    analyseLog(logFolder+ "/" +qsFileName);
 
     qsFileName ="textfile.log";
-    analyseLog(qsFileName);
+    analyseLog(logFolder+ "/" +qsFileName);
 
     qsFileName = "jsonfile.log";
-    analyseLog(qsFileName);
-/*
+    analyseLog(logFolder+ "/" +qsFileName);
 
 */
+    qsFileName = "aex-client.log";
+    analyseLog(logFolder+ "/" +qsFileName);
+    
+    qsFileName = "tales_stable.pl.xml";
+    analyseLog(logFolder+ "/" +qsFileName);
+   
     return 0;
 }
