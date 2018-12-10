@@ -10,6 +10,7 @@ using namespace std;
 #define N 10
 #define MIN_WORD_LEN 4
 
+
 // Helper funtion, return true for char [a..z][A..Z]
 bool isLetter(char ch){
     if ((ch>='a') && (ch<='z')) return true;
@@ -17,7 +18,8 @@ bool isLetter(char ch){
     return false;
 }
 
-// Helper funtion, return copy if string in lower case.
+
+// Helper funtion, return copy of string in lower case.
 // Modify only [A..Z] characters.
 string toLower(string s){
     char ch;
@@ -31,9 +33,10 @@ string toLower(string s){
     return lower;
 }
 
+
 // Helper funtion,
 // to sort long in descending order,
-// and sort string in ascending order
+// and sort string in ascending order.
 bool compItems(pair<long, string> a, pair<long, string> b){
     if (a.first > b.first) return true;
     if (a.first == b.first) {
@@ -42,38 +45,6 @@ bool compItems(pair<long, string> a, pair<long, string> b){
     return false;
 }
 
-
-// Function to generate new words from input item.
-// item consist of count and source word.
-//
-// If new word exist in map, function update count,
-// otherwise insert new word to map with count from input pair.
-void generateWords(pair<long, string> item, map<string, long> *m){
-    string const source = item.second;
-    long count = item.first;
-    size_t genWordLen = MIN_WORD_LEN;
-    size_t const lenght = source.length();
-    string newWord;
-    map<string, long>::iterator it;
-
-    for (size_t i=0; i<=lenght-MIN_WORD_LEN; i++){
-        genWordLen = MIN_WORD_LEN+i;
-        //cout << "genWordLen is : " << genWordLen << ", i is :" << i << endl;
-        for (size_t start = 0; start<=lenght-genWordLen; start++) {
-            count = item.first;
-            newWord = source.substr(start, genWordLen);
-            //cout << "Word source is : " << source << " : new word " << newWord << endl;
-            it = m->find(newWord);
-            if (it == m->end()){
-                m->emplace(newWord,count);
-                //cout << "insert  new  word '" << newWord << "' with count " << count << endl;
-            }else {
-                it->second+=count;
-                //cout << "update exist word '" << newWord << "' with count " << it->second << endl;
-            }
-        }
-    }//end of main loop
-}
 
 // Function with static vars to collect char in one word.
 // Flag isReady will be set to true when word is copmleate.
@@ -93,13 +64,34 @@ string grabOneWord(const char ch, bool *isReady){
         word.push_back(ch);
     }
     if (!isLetter(ch) && (startWord)){
-        cout << word << endl;
+        //cout << word << endl;
         //stop collect word
         startWord = false;
         *isReady = true;
     }
     return word;
 }
+
+
+// Helper hunction to get file size and try to estimate reading time.
+string fileInfo(string qsFileName){
+    ifstream input (qsFileName, std::ifstream::in);
+    if (!input.is_open() )    {
+        string message = "Can't open file '";
+        cout << message << qsFileName << "'\n";
+        return message;
+    }
+
+    // get length of file:
+    input.seekg (0, ios::end);
+    long long iFileSize = input.tellg();
+    long long iTimeOut = iFileSize/10000000;
+    cout <<  "File size "<< iFileSize << " in bytes\nTo parse it, this can take " << iTimeOut<<" sec. \n";
+    input.seekg (0, ios::beg);
+    input.close();
+    return "Ok";
+}
+
 
 // Main function working with file.
 // First - get file size and try to estimate reading time.
@@ -110,21 +102,12 @@ string grabOneWord(const char ch, bool *isReady){
 // Last - show some statistics.
 string readFile(string qsFileName, map<string, long> *m){
     string message;
-    ifstream input (qsFileName, std::ifstream::in);
-    if (!input.is_open() )    {
-        message = "Can't open file ";
-        cout << message << qsFileName << endl;
-        return message;
-    }
 
-    // get length of file:
-    input.seekg (0, ios::end);
-    long long iFileSize = input.tellg();
-    long long iTimeOut = iFileSize/10000000;
-    cout <<  "File size "<< iFileSize << " in bytes\nTo parse it, this can take " << iTimeOut<<" sec \n";
-    input.seekg (0, ios::beg);
+    message = fileInfo(qsFileName);
+    if (message!="Ok") return message;
 
-
+    ifstream input;
+    input.open(qsFileName, std::ifstream::in);
     long totalWords = 0;
     long longWords = 0;
     long unicWords = 0;
@@ -160,6 +143,40 @@ string readFile(string qsFileName, map<string, long> *m){
     return message;
 }
 
+
+// Function to generate new words from input item.
+// item consist of count and source word.
+//
+// If new word exist in map, function update count,
+// otherwise insert new word to map with count from input pair.
+void generateWords(pair<long, string> item, map<string, long> *m){
+    string const source = item.second;
+    long count = item.first;
+    size_t genWordLen = MIN_WORD_LEN;
+    size_t const lenght = source.length();
+    string newWord;
+    map<string, long>::iterator it;
+
+    for (size_t i=0; i<=lenght-MIN_WORD_LEN; i++){
+        genWordLen = MIN_WORD_LEN+i;
+        //cout << "genWordLen is : " << genWordLen << ", i is :" << i << endl;
+        for (size_t start = 0; start<=lenght-genWordLen; start++) {
+            count = item.first;
+            newWord = source.substr(start, genWordLen);
+            //cout << "Word source is : " << source << " : new word " << newWord << endl;
+            it = m->find(newWord);
+            if (it == m->end()){
+                m->emplace(newWord,count);
+                //cout << "insert  new  word '" << newWord << "' with count " << count << endl;
+            }else {
+                it->second+=count;
+                //cout << "update exist word '" << newWord << "' with count " << it->second << endl;
+            }
+        }
+    }//end of main loop
+}
+
+
 // Function to make new map with short words.
 // It use pair<long, string> myItem to pass input word and count to
 // function generateWords.
@@ -178,6 +195,7 @@ map<string, long> generateExtraMap(map<string, long> originalMap){
     }
     return newMap;
 }
+
 
 // Functin to copy all data from map to vector, and
 // count total words count in extended map.
@@ -263,35 +281,37 @@ void analyseLog(string fileName){
 
 int main()
 {
-    string logFolder = "";
+    string logFolder = "textFiles/";
+    logFolder = "";
+
     string qsFileName = "s2.txt";
     
     analyseLog(qsFileName);
 
     qsFileName = "s.txt";
     analyseLog(logFolder +qsFileName);
-    /*
+/*
     qsFileName = "QChar.md";
-    analyseLog(logFolder+ "/" +qsFileName);
+    analyseLog(logFolder +qsFileName);
 
     qsFileName = "QtWebEngine5.12.html";
-    analyseLog(logFolder+ "/" +qsFileName);
+    analyseLog(logFolder +qsFileName);
 
     qsFileName ="THREE-MEN-IN-A-BOAT.html";
-    analyseLog(logFolder+ "/" +qsFileName);
+    analyseLog(logFolder +qsFileName);
 
     qsFileName ="textfile.log";
-    analyseLog(logFolder+ "/" +qsFileName);
+    analyseLog(logFolder +qsFileName);
 
     qsFileName = "jsonfile.log";
-    analyseLog(logFolder+ "/" +qsFileName);
+    analyseLog(logFolder +qsFileName);
 
 
     qsFileName = "aex-client.log";
-    analyseLog(logFolder+ "/" +qsFileName);
+    analyseLog(logFolder +qsFileName);
     
     qsFileName = "tales_stable.pl.xml";
-    analyseLog(logFolder+ "/" +qsFileName);
+    analyseLog(logFolder +qsFileName);
 */
     return 0;
 }
