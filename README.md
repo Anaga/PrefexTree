@@ -54,5 +54,45 @@ For insertion in min heap, 3 cases arise:
  3.2 The frequency of the new word inserted is greater than the frequency of the word stored in the head of min heap. Replace & update the fields. Make sure to update the corresponding min heap index of the “word to be replaced” in Trie with -1 as the word is no longer in min heap.
 4. Finally, Min Heap will have the N most frequent words of all words generated from shortTrie. So we just need to print all words present in Min Heap.
 
+ ------------------------------  
+### Generate word function  
+* For input 'colorfull' :
+> Word source is : colorfull : new word colo  
+> Word source is : colorfull : new word olor  
+> Word source is : colorfull : new word lorf  
+> Word source is : colorfull : new word orfu  
+> Word source is : colorfull : new word rful  
+> Word source is : colorfull : new word full
+> Word source is : colorfull : new word color  
+> Word source is : colorfull : new word olorf  
+> Word source is : colorfull : new word lorfu  
+> Word source is : colorfull : new word orful  
+> Word source is : colorfull : new word rfull  
+> Word source is : colorfull : new word colorf  
+> Word source is : colorfull : new word olorfu  
+> Word source is : colorfull : new word lorful  
+> Word source is : colorfull : new word orfull  
+> Word source is : colorfull : new word colorfu  
+> Word source is : colorfull : new word olorful  
+> Word source is : colorfull : new word lorfull  
+> Word source is : colorfull : new word colorful  
+> Word source is : colorfull : new word olorfull  
+> Word source is : colorfull : new word colorfull   
 
-
+For input 'settings' :  
+> Word source is : settings : new word sett  
+> Word source is : settings : new word etti  
+> Word source is : settings : new word ttin  
+> Word source is : settings : new word ting  
+> Word source is : settings : new word ings  
+> Word source is : settings : new word setti  
+> Word source is : settings : new word ettin  
+> Word source is : settings : new word tting  
+> Word source is : settings : new word tings  
+> Word source is : settings : new word settin  
+> Word source is : settings : new word etting  
+> Word source is : settings : new word ttings  
+> Word source is : settings : new word setting  
+> Word source is : settings : new word ettings  
+> Word source is : settings : new word settings  
+  
