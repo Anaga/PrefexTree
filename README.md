@@ -27,10 +27,10 @@ The content of the input file:
  ------------------------------  
 
 ### Simple solution  (implemented in code)
-* Use map to collect all "long" word - shortMap
-* For-each word from shortMap generate "short" words and store in a extended map.  
-* Copy items from map to vector
-* Sort vector and print out top N items.
+* Use a map to collect all "long" word - shortMap
+* For-each word from shortMap generate "short" words and store in an extended map.  
+* Copy items from an extended map to the vector
+* Sort the vector and print out top N items.
 
 ### Complicated solution   (NOT implemented in code, only text algorithm)
 Use new data structure - combine Trie and Min Heap to get the N most frequent words efficiently.  
