@@ -62,7 +62,7 @@ For insertion in min heap, 3 cases arise:
 > Word source is : colorfull : new word lorf  
 > Word source is : colorfull : new word orfu  
 > Word source is : colorfull : new word rful  
-> Word source is : colorfull : new word full
+> Word source is : colorfull : new word full  
 > Word source is : colorfull : new word color  
 > Word source is : colorfull : new word olorf  
 > Word source is : colorfull : new word lorfu  
