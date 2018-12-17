@@ -4,6 +4,7 @@
 #include <map>          // std::map, find, emplace
 #include <string>       // std::string, lenght, substr, push_back
 #include <vector>       // std::vector, push_back
+#include <cctype>       // std::tolower, std::isalpha
 
 using namespace std;
 
@@ -12,23 +13,26 @@ using namespace std;
 
 
 // Helper funtion, return true for char [a..z][A..Z]
+/*
 bool isLetter(char ch){
     if ((ch>='a') && (ch<='z')) return true;
     if ((ch>='A') && (ch<='Z')) return true;
     return false;
 }
+*/
 
 
 // Helper funtion, return copy of string in lower case.
-// Modify only [A..Z] characters.
+// Use std::tolower function.
 string toLower(string s){
     char ch;
     string lower;
-    char delta = 'a'-'A';
+    //char delta = 'a'-'A';
     for (size_t i=0; i<s.length(); i++){
         ch = s.at(i);
-        if ((ch>='A') && (ch<='Z')) ch+=delta; //up from capital letter to lower letter (char delta - 32)
-        lower.push_back(ch);
+        lower.push_back( static_cast<char>(tolower(ch)));
+        //if ((ch>='A') && (ch<='Z')) ch+=delta; //up from capital letter to lower letter (char delta - 32)
+        //lower.push_back(ch);
     }
     return lower;
 }
@@ -54,16 +58,16 @@ string grabOneWord(const char ch, bool *isReady){
     static string word = "";
     static bool startWord = false;
     *isReady = false;
-    if (isLetter(ch) && (!startWord)){
+    if (isalpha(ch) && (!startWord)){
         //we start to collect new word
         startWord = true;
         word = "";
     }
-    if (isLetter(ch) && (startWord)){
+    if (isalpha(ch) && (startWord)){
         //we continue to collect word
         word.push_back(ch);
     }
-    if (!isLetter(ch) && (startWord)){
+    if (!isalpha(ch) && (startWord)){
         //cout << word << endl;
         //stop collect word
         startWord = false;
