@@ -12,27 +12,12 @@ using namespace std;
 #define MIN_WORD_LEN 4
 
 
-// Helper funtion, return true for char [a..z][A..Z]
-/*
-bool isLetter(char ch){
-    if ((ch>='a') && (ch<='z')) return true;
-    if ((ch>='A') && (ch<='Z')) return true;
-    return false;
-}
-*/
-
-
 // Helper funtion, return copy of string in lower case.
 // Use std::tolower function.
 string toLower(string s){
-    char ch;
     string lower;
-    //char delta = 'a'-'A';
     for (size_t i=0; i<s.length(); i++){
-        ch = s.at(i);
-        lower.push_back( static_cast<char>(tolower(ch)));
-        //if ((ch>='A') && (ch<='Z')) ch+=delta; //up from capital letter to lower letter (char delta - 32)
-        //lower.push_back(ch);
+        lower.push_back( static_cast<char>(tolower(s.at(i))));
     }
     return lower;
 }
@@ -51,9 +36,9 @@ bool compItems(pair<long, string> a, pair<long, string> b){
 
 
 // Function with static vars to collect char in one word.
-// Flag isReady will be set to true when word is copmleate.
+// Flag isReady will be set to true when word is complete.
 // But function return collected word at any call.
-// (Eaven if is not compleate)
+// (Even if the word is not complete)
 string grabOneWord(const char ch, bool *isReady){
     static string word = "";
     static bool startWord = false;
@@ -77,7 +62,7 @@ string grabOneWord(const char ch, bool *isReady){
 }
 
 
-// Helper hunction to get file size and try to estimate reading time.
+// Helper function to get file size and try to estimate reading time.
 string fileInfo(string qsFileName){
     ifstream input (qsFileName, std::ifstream::in);
     if (!input.is_open() )    {
@@ -86,7 +71,7 @@ string fileInfo(string qsFileName){
         return message;
     }
 
-    // get length of file:
+    // get length of file
     input.seekg (0, ios::end);
     long long iFileSize = input.tellg();
     long long iTimeOut = iFileSize/10000000;
@@ -217,6 +202,7 @@ long fillVector(vector<pair<long, string>> *toFill, map<string, long> fromMap){
     return total;
 }
 
+
 // Functin to sort vector items according to helper function compItems
 // Then print out N items from the top.
 void printVector(vector<pair<long, string>> toPrint, long totalCount, int topCount){
@@ -265,7 +251,6 @@ void analyseLog(string fileName){
 
     message = "Start to generate extended map, with new short words.\n";
     cout << message;
-
     map<string, long> extendedMap = generateExtraMap(myMap);
     message = "Extended map now have ";
     cout << message << extendedMap.size() << " elements\n";
